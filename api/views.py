@@ -31,7 +31,7 @@ def fucking_php_escape(string):
 
 
 def index(request):
-    return HttpResponse('{"api":"TechnicSolder","version":"0.3","stream":"DEV","extraver":"0.1antani"}')
+    return HttpResponse('{"api":"TechnicSolder","version":"0.7","stream":"DEV","extraver":"0.1antani"}')
 
 
 def modpack_list(request):

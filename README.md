@@ -2,7 +2,7 @@
 
 ## WARNING: This is an alpha version.
 
-This is a rewrite of TechnicSolder in python-django 1.6. It has a couple of requirements:
+This is a rewrite of TechnicSolder in python-django 1.7+. It has a couple of requirements:
  * python >= 3.3
  * python-pip for python3
  * python-virtualenv for python3
