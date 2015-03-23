@@ -74,7 +74,7 @@ class ViewsTest(TestCase):
         out = index(r)
         obj = json.loads(out.content.decode())
         self.assertEqual(obj['api'],'TechnicSolder')
-        self.assertEqual(obj['version'], '0.3')
+        self.assertEqual(obj['version'], '0.7')
         self.assertEqual(obj['extraver'], '0.1antani')
         self.assertEqual(obj['stream'], 'DEV')
 

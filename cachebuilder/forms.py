@@ -22,7 +22,7 @@ from cachebuilder.pack_manager import ModpackManager
 
 class CreatePack(forms.Form):
     gitrepo = forms.CharField(max_length=255)
-    # TODO gitolite support
+    secret = forms.CharField(max_length=255, required=False)
 
     def clean_gitrepo(self):
         isgit = re.compile("http.*\.git")

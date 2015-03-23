@@ -13,6 +13,10 @@
             {{ form.gitrepo.label_tag }}
             {{ form.gitrepo|add_class:'form-control'|attr:'placeholder:http git repo path, http://github.com/somebody/something.git' }}
         </div>
+        <div class="form-group{% if form.secret.errors %} has-error{% endif %}">
+            {{ form.secret.label_tag }}
+            {{ form.secret|add_class:'form-control'|attr:'placeholder:GitHub Secret - if applicable' }}
+        </div>
         <div class="form-group">
             <input type="submit" value="Submit" class="form-control btn btn-primary">
         </div>

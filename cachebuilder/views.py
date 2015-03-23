@@ -21,6 +21,8 @@ from django.contrib.auth.decorators import login_required
 import cachebuilder.tasks as mytasks
 from cachebuilder.forms import CreatePack, get_repo_name
 import json
+import hmac
+from cachebuilder.models import RepoSecret
 
 
 @login_required
@@ -36,15 +38,18 @@ def build_caches(request):
     mytasks.build_all_caches.delay()
     return redirect(index)
 
+
 @login_required
 def clear_caches(request):
     mytasks.clear_caches.delay()
     return redirect(index)
 
+
 @login_required
 def purge_caches(request):
     mytasks.purge_caches.delay()
     return redirect(index)
+
 
 @login_required
 def create_modpack(request):
@@ -56,13 +61,24 @@ def create_modpack(request):
         if form.is_valid():
             mytasks.clone_modpack.delay(form.cleaned_data['gitrepo'], get_repo_name(form.cleaned_data['gitrepo']))
             context['packname'] = get_repo_name(form.cleaned_data['gitrepo'])
+            secret = RepoSecret()
+            secret.repoName = context['packname']
+            secret.secret = form.cleaned_data['secret']
+            secret.save()
             return render(request, "cachebuilder/creating.html", context)
     else:
         form = CreatePack()
     context['form'] = form
     return render(request, "cachebuilder/create.html", context)
 
+
 def github_hook(request):
-    obj = json.loads(request.POST['payload'])
-    mytasks.update_modpack(obj['repository']['name']).delay()
+    obj = json.loads(request.body)
+    signature = request.META['HTTP_X_HUB_SIGNATURE']
+    repo_name = obj['repository']['name']
+    secret = RepoSecret.objects.find(pk=repo_name)
+    if secret.repoName is not None:
+        dig = hmac.new(secret.secret, msg=request.body)
+        if dig.digest() == signature:
+            mytasks.update_modpack(repo_name).delay()
     return HttpResponse("{}")
