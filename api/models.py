@@ -71,8 +71,8 @@ class VersionCache(models.Model):
     Modpack single version (cache)
     '''
     version = models.CharField(max_length=32)
-    recommended = models.BooleanField()
-    latest = models.BooleanField()
+    recommended = models.BooleanField(default=False)
+    latest = models.BooleanField(default=False)
     mcversion = models.CharField(max_length=32)
     mcversion_checksum = models.CharField(max_length=32)
     forgever = models.CharField(max_length=64)
