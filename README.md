@@ -1,6 +1,6 @@
-# TechnicAntani 2 [![Build Status](https://travis-ci.org/AntaniCraft/TechnicAntani.svg?branch=master)](https://travis-ci.org/AntaniCraft/TechnicAntani)
+# TechnicAntani 2 [![Build Status](https://travis-ci.org/admiral0/TechnicAntani.svg?branch=master)](https://travis-ci.org/admiral0/TechnicAntani)
 
-# WARNING: This is a WIP of version 2. I've rethought all deployment system and switched to be different from TechnicSolder (aka it's catching up finally so I can do cooler things)
+## WARNING: This is an alpha version.
 
 This is a rewrite of TechnicSolder in python-django 1.6. It has a couple of requirements:
  * python >= 3.3
@@ -16,7 +16,6 @@ This is a rewrite of TechnicSolder in python-django 1.6. It has a couple of requ
 Because I want to bring modpack development and server management to a whole new level.
 
 ## Planned features (in order of priority)
- * Fabric deployment and documentation
  * External repos support (Github is the first provider we'll support, aka webhooks)
  * Remote Minecraft Server Deployment
  * Remote Minecraft Server Autoupdate
