@@ -45,7 +45,7 @@ urlpatterns = patterns('',
 
                        url(r'^modpack/create$', cachebuilder.create_modpack),
 
-                       url(r'^hooks/github$', cachebuilder.github_hook, name="github")
+                       url(r'^hooks/github$', cachebuilder.git_webhook, name="github")
                        )
 
 if settings.DEBUG:

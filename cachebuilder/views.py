@@ -22,6 +22,7 @@ import cachebuilder.tasks as mytasks
 from cachebuilder.forms import CreatePack, get_repo_name
 import json
 import hmac
+import hashlib
 from cachebuilder.models import RepoSecret
 
 
@@ -72,13 +73,13 @@ def create_modpack(request):
     return render(request, "cachebuilder/create.html", context)
 
 
-def github_hook(request):
+def git_webhook(request):
     obj = json.loads(request.body)
     signature = request.META['HTTP_X_HUB_SIGNATURE']
     repo_name = obj['repository']['name']
     secret = RepoSecret.objects.find(pk=repo_name)
     if secret.repoName is not None:
-        dig = hmac.new(secret.secret, msg=request.body)
+        dig = hmac.new(secret.secret.encode('utf-8'), msg=request.body, digestmod=hashlib.sha1)
         if dig.digest() == signature:
             mytasks.update_modpack(repo_name).delay()
     return HttpResponse("{}")
