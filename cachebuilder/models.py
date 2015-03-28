@@ -19,5 +19,5 @@ from django.db import models
 
 
 class RepoSecret(models.Model):
-    repoName = models.CharField(max_length=255, primary_key=True)
+    repoName = models.CharField(max_length=255, primary_key=True, unique=True)
     secret = models.CharField(max_length=255)

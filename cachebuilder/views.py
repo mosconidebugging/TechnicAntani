@@ -23,7 +23,9 @@ from cachebuilder.forms import CreatePack, get_repo_name
 import json
 import hmac
 import hashlib
+import re
 from cachebuilder.models import RepoSecret
+from django.views.decorators.csrf import csrf_exempt
 
 
 @login_required
@@ -73,13 +75,19 @@ def create_modpack(request):
     return render(request, "cachebuilder/create.html", context)
 
 
+@csrf_exempt
 def git_webhook(request):
-    obj = json.loads(request.body)
+    obj = json.loads(request.body.decode("utf-8"))
     signature = request.META['HTTP_X_HUB_SIGNATURE']
+    signature = signature.split("=")[1]
     repo_name = obj['repository']['name']
-    secret = RepoSecret.objects.find(pk=repo_name)
-    if secret.repoName is not None:
+    try:
+        secret = RepoSecret.objects.get(repoName=repo_name)
         dig = hmac.new(secret.secret.encode('utf-8'), msg=request.body, digestmod=hashlib.sha1)
-        if dig.digest() == signature:
+        if dig.hexdigest() == signature:
             mytasks.update_modpack(repo_name).delay()
-    return HttpResponse("{}")
+        else:
+            return HttpResponse("{ error : \"Wrong key supplied\"}")
+    except RepoSecret.DoesNotExist:
+        return HttpResponse("{ error : \"Repo not found\"}")
+    return HttpResponse("{ message : \"Update started\" }")
