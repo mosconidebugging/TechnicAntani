@@ -51,8 +51,3 @@ SERVE_DOMAIN = ""
 
 # The webpath of the server. If unsure, ignore
 SERVE_URL = "/antani/"
-
-#
-# Os settings
-#
-GIT_EXEC = "git"

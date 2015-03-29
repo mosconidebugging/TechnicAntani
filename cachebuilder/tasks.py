@@ -19,11 +19,11 @@ from celery import shared_task
 from cachebuilder.mod_manager import *
 from cachebuilder.pack_manager import *
 from api.models import *
-from os import system, path
+from os import path
 from cachebuilder.utils import checksum_file, build_forge, build_config, build_mod, sanitize_path, delete_built
-from subprocess import Popen, PIPE
 import logging
 import shutil
+import pygit2
 
 
 @shared_task
@@ -114,9 +114,14 @@ def update_modpack(repo, user):
     Will update caches if new changes are pulled inn
     """
     log = logging.getLogger("update_modpack")
-    output = Popen([GIT_EXEC, "pull"], stdout=PIPE, cwd=path.join(MODPACKPATH, repo)).communicate()[0]
-    log.info(output)
-    if "No updates found" in output:
+    repo = pygit2.Repository(path.join(MODPACKPATH, repo))
+    updates = False
+    for remote in repo.remotes:
+        result = remote.fetch()
+        log.info("Fetched " + result.received_objects + " from remote " + remote.name)
+        if result.received_objects > 0:
+            updates = True
+    if not updates:
         log.warning('No updates found. Weird. Modpack:  ' + repo)
         return False
     build_all_caches()
@@ -133,7 +138,8 @@ def clone_modpack(gitrepo, targetdir):
     if path.isdir(path.join(MODPACKPATH, cleandir)):
         log.error('NOPE. There\'s a dir named like this.')
         return None
-    system(GIT_EXEC + ' clone "' + gitrepo + '" ' + path.join(MODPACKPATH, cleandir))
+
+    pygit2.clone_repository(gitrepo, path.join(MODPACKPATH, cleandir))
     log.info("Repo created. Building")
     build_all_caches()
 
@@ -141,15 +147,16 @@ def clone_modpack(gitrepo, targetdir):
 @shared_task
 def change_mod_repo(newrepo):
     if path.isdir(path.join(MODREPO_DIR, '.git')):
-        system('rm -rf ' + MODREPO_DIR + '/*')
-        system('rm -rf ' + MODREPO_DIR + '/.??*')
-    system(GIT_EXEC + ' clone "' + newrepo + '" ' + MODREPO_DIR)
+        shutil.rmtree(MODREPO_DIR)
+    pygit2.clone_repository(newrepo, MODREPO_DIR)
 
 
 @shared_task
 def pull_mods():
     if path.isdir(path.join(MODREPO_DIR, '.git')):
-        system("cd " + MODREPO_DIR + " && " + GIT_EXEC + ' pull')
+        repo = pygit2.Repository(MODREPO_DIR)
+        repo.remotes[0].fetch()  # assuming first remote is best remote
+        repo.checkout('refs/remotes/origin/master')
 
 
 @shared_task
