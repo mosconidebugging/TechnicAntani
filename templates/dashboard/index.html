@@ -1,0 +1,18 @@
+{% extends 'index.html' %}
+{% block body %}
+<h1>Welcome to TechnicAntani 2</h1>
+{% for pack in packs %}
+<div class="media">
+    <div class="media-left">
+        <img src="{{ rootdir }}/{{ pack.slug }}/resources/icon.png">
+    </div>
+    <div class="media-body">
+        <h4 class="media-heading">{{ pack.name }}</h4>
+        {{ pack.description }}
+    </div>
+</div>
+{% endfor %}
+{% if not packs %}
+    <h5>No packs added yet.</h5>
+{% endif %}
+{% endblock %}

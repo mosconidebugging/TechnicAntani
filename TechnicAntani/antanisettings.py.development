@@ -33,6 +33,8 @@ MODPACKPATH = os.path.join(BASE_DIR, "var", "packrepo")
 
 # The path the mod repo will be cloned to. Must be writable
 MODREPO_DIR = os.path.join(BASE_DIR, 'var', 'modrepo')
+MODREPO_PASS = "Pass"
+MODREPO_REMOTE = "githuburl"
 
 # This is where zips are going to be assembled for the modpack.
 # This ABSOLUTELY needs to be writable by technicantani

@@ -12,4 +12,7 @@
         </li>
     {% endfor %}
     </ul>
+    {% if not packs %}
+    <h5>No modpacks indexed yet.</h5>
+    {% endif %}
 {% endblock %}

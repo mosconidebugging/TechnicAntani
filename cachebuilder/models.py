@@ -16,8 +16,18 @@
 #############################################################################
 
 from django.db import models
+from django.contrib.auth.models import User
 
 
 class RepoSecret(models.Model):
+    owner = models.ForeignKey(User)
     repoName = models.CharField(max_length=255, primary_key=True, unique=True)
     secret = models.CharField(max_length=255)
+
+
+class Error(models.Model):
+    """
+    Errors to display to the user
+    """
+    user = models.ForeignKey(User)
+    error = models.TextField()

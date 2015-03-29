@@ -17,6 +17,9 @@
         </li>
     {% endfor %}
     </ul>
+    {% if not mods %}
+    <h5>No mods indexed yet.</h5>
+    {% endif %}
     <script>
         $(".version-info").tooltip({"html" : true});
     </script>

@@ -20,27 +20,44 @@
 from os import path, walk
 from TechnicAntani.settings import MODREPO_DIR
 import json
+import sys
 
 
 class Mod:
+    error = None
+
     def __init__(self, dirname):
         # TODO sanitizing and syntax check
         versionf = open(path.join(dirname, "mod.json"))
-        obj = json.load(versionf)
-        versionf.close()
         self.slug = dirname.split(path.sep)[-1]
-        self.name = obj["name"]
-        self.description = obj["description"]
-        self.author = obj["author"]
-        self.url = obj["url"]
-        self.type = obj["type"]  # mod, prepackaged
+        try:
+            obj = json.load(versionf)
+        except ValueError:
+            self.error = sys.exc_info()[0]
+            return
+        finally:
+            versionf.close()
+        try:
+            self.name = obj["name"]
+            self.description = obj["description"]
+            self.author = obj["author"]
+            self.url = obj["url"]
+            self.type = obj["type"]  # mod, prepackaged
+        except KeyError:
+            self.error = sys.exc_info()[0]
+            return
         self.versions = {}
 
-        for version in obj['versions'].keys():
-            self.versions[version] = {
-                'file': obj["versions"][version]['file'],
-                'mcvers': obj["versions"][version]['minecraft']
-            }
+        try:
+            for version in obj['versions'].keys():
+                self.versions[version] = {
+                    'file': obj["versions"][version]['file'],
+                    'mcvers': obj["versions"][version]['minecraft']
+                }
+        except KeyError:
+            self.error = sys.exc_info()[0]
+        except AttributeError:
+            self.error = "versions is not dictionary!!"
 
     def __str__(self):
         return self.slug
@@ -50,12 +67,17 @@ class Mod:
 
 
 class ModManager:
+    errors = {}
+
     def __init__(self):
         self.fspath = MODREPO_DIR
         self.mods = []
         for root, dirs, files in walk(self.fspath):
             if "mod.json" in files:
-                self.mods.append(Mod(root))
+                mod = Mod(root)
+                if mod.error is not None:
+                    self.errors[mod.slug] = mod.error
+                self.mods.append(mod)
 
     def get_mod(self, slug):
         for mod in self.mods:
@@ -68,3 +90,6 @@ class ModManager:
         for m in self.mods:
             arr.append(m.slug)
         return arr
+
+    def get_errors(self):
+        return self.errors

@@ -4,6 +4,7 @@ import io
 # Set log level here
 loglevel = logging.INFO
 
+
 class Logger(object):
     """
     Detain all the logs
@@ -21,11 +22,11 @@ class Logger(object):
         return cls._instance
 
     def __init__(self):
-        logging.basicConfig(stream=self.stream,level=loglevel)
+        logging.basicConfig(stream=self.stream, level=loglevel)
 
     def getAll(self):
         self.stream.seek(0)
         str = self.stream.read()
         self.stream = io.StringIO()
-        logging.basicConfig(stream=self.stream,level=loglevel)
+        logging.basicConfig(stream=self.stream, level=loglevel)
         return str

@@ -65,6 +65,7 @@ def create_modpack(request):
             mytasks.clone_modpack.delay(form.cleaned_data['gitrepo'], get_repo_name(form.cleaned_data['gitrepo']))
             context['packname'] = get_repo_name(form.cleaned_data['gitrepo'])
             secret = RepoSecret()
+            secret.owner = request.user
             secret.repoName = context['packname']
             secret.secret = form.cleaned_data['secret']
             secret.save()
@@ -85,9 +86,23 @@ def git_webhook(request):
         secret = RepoSecret.objects.get(repoName=repo_name)
         dig = hmac.new(secret.secret.encode('utf-8'), msg=request.body, digestmod=hashlib.sha1)
         if dig.hexdigest() == signature:
-            mytasks.update_modpack(repo_name).delay()
+            mytasks.update_modpack.delay(repo_name, secret.owner)
         else:
             return HttpResponse("{ error : \"Wrong key supplied\"}")
     except RepoSecret.DoesNotExist:
         return HttpResponse("{ error : \"Repo not found\"}")
+    return HttpResponse("{ message : \"Update started\" }")
+
+
+@csrf_exempt
+def modrepo_webhook(request):
+    from TechnicAntani.antanisettings import MODREPO_PASS
+    signature = request.META['HTTP_X_HUB_SIGNATURE']
+    signature = signature.split("=")[1]
+    secret = MODREPO_PASS
+    dig = hmac.new(secret.encode('utf-8'), msg=request.body, digestmod=hashlib.sha1)
+    if dig.hexdigest() == signature:
+        mytasks.pull_mods.delay()
+    else:
+        return HttpResponse("{ error : \"Wrong key supplied\"}")
     return HttpResponse("{ message : \"Update started\" }")

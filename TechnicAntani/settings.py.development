@@ -41,6 +41,8 @@ INSTALLED_APPS = (
     'api',
     'cachebuilder',
     'inspector',
+    "dashboard",
+    "admin"
 )
 
 MIDDLEWARE_CLASSES = (
@@ -98,5 +100,9 @@ LOGIN_REDIRECT_URL = '/'
 
 BROKER_URL = 'redis://localhost:6379/0'
 CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
-
+CELERY_TASK_SERIALIZER = "json"
 CELERY_ACCEPT_CONTENT = ['json', 'msgpack', 'yaml']
+
+FIXTURE_DIRS = (
+   os.path.join(BASE_DIR, "data")
+)

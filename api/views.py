@@ -23,7 +23,15 @@ from api.forms import ManageKey
 
 import json
 import re
+from os import path
 
+
+def get_root_for(r, p, url):
+    return path.join(
+        SERVE_DOMAIN + SERVE_URL if (SERVE_DOMAIN != "") else "http://" + r.get_host() + SERVE_URL,
+        p,
+        url
+    )
 
 def fucking_php_escape(string):
     strout = re.sub("([/])", r'\\\1', string)
@@ -51,6 +59,9 @@ def modpack(request, slug):
     result["name"] = m.slug
     result["display_name"] = m.name
     result["url"] = m.url
+    result["logo"] = get_root_for(request, slug, "resources/logo_180.png")
+    result["icon"] = get_root_for(request, slug, "resources/icon.png")
+    result["background"] = get_root_for(request, slug, "resources/background.jpg")
     result["logo_md5"] = m.logo_md5
     result["icon_md5"] = m.icon_md5
     result["background_md5"] = m.background_md5
@@ -62,7 +73,7 @@ def modpack(request, slug):
         if b.latest:
             result["latest"] = b.version
 
-    return HttpResponse(json.dumps(result).replace("\\\\","\\"))
+    return HttpResponse(json.dumps(result).replace("\\\\", "\\"))
 
 
 def modpack_build(request, slug, build):
@@ -117,7 +128,7 @@ def mod(request, modslug=None):
     }
     for f in fcs:
         result["versions"].append(f.version)
-    return HttpResponse(json.dumps(result).replace("\\\\","\\"))
+    return HttpResponse(json.dumps(result).replace("\\\\", "\\"))
 
 
 def apikeys_manage(request):

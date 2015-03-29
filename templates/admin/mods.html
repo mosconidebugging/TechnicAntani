@@ -1,0 +1,26 @@
+{% extends 'index.html' %}
+{% block body %}
+    <h1>Modrepo Info</h1>
+    <p>These settings are in antanisettings.py</p>
+    <table class="table">
+        <thead>
+            <td>Key</td>
+            <td>Value</td>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Remote for mods</td>
+                <td>{{ git_remote }}</td>
+            </tr>
+            <tr>
+                <td>Secret for github hook</td>
+                <td>{{ git_secret }}</td>
+            </tr>
+            <tr>
+                <td>Github hook URL</td>
+                <td>{% url 'modrepo' %}</td>
+            </tr>
+        </tbody>
+    </table>
+    <a href="/admin/init_or_pull_modrepo" class="btn btn-default">Initialize or pull mods</a>
+{% endblock %}

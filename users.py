@@ -23,7 +23,10 @@ import os
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "TechnicAntani.settings")
 
 # here be dragons (aka django)
+import django
 from django.contrib.auth.models import User
+
+django.setup()
 
 
 def list_users(args):

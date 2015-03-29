@@ -19,9 +19,11 @@ from TechnicAntani.settings import MODPACKPATH
 import os.path as path
 from os import listdir
 import json
+import sys
 
 
 class Modpack:
+    error = None
     def __init__(self, name):
         self.name = name
         mainkeys = [
@@ -34,20 +36,28 @@ class Modpack:
         modvers = [
             'version'
         ]
-        meta = open(path.join(MODPACKPATH, name, "modpack.json"))
-        obj = json.load(meta)
-        meta.close()
-        for mkey in mainkeys:
-            setattr(self, mkey, obj[mkey])
-            self.versions = {}
-            for version in obj['versions'].keys():
-                version_obj = {}
-                for vkey in versionkeys:
-                    version_obj[vkey] = obj['versions'][version][vkey]
-                    version_obj['mods'] = {}
-                    for mod in obj['versions'][version]['mods'].keys():
-                        version_obj['mods'][mod] = obj['versions'][version]['mods'][mod]
-                self.versions[version] = version_obj
+        try:
+            meta = open(path.join(MODPACKPATH, name, "modpack.json"))
+            obj = json.load(meta)
+            for mkey in mainkeys:
+                setattr(self, mkey, obj[mkey])
+                self.versions = {}
+                for version in obj['versions'].keys():
+                    version_obj = {}
+                    for vkey in versionkeys:
+                        version_obj[vkey] = obj['versions'][version][vkey]
+                        version_obj['mods'] = {}
+                        for mod in obj['versions'][version]['mods'].keys():
+                            version_obj['mods'][mod] = obj['versions'][version]['mods'][mod]
+                    self.versions[version] = version_obj
+        except IOError:
+            self.error = sys.exc_info()[0]
+        except KeyError:
+            self.error = sys.exc_info()[0]
+        except AttributeError:
+            self.error = sys.exc_info()[0]
+        finally:
+            meta.close()
 
     def get_background(self):
         return path.join(MODPACKPATH, self.name, "assets", "background.jpg")
@@ -82,18 +92,16 @@ class ModpackManager:
             if path.isdir(path.join(MODPACKPATH, dirf)):
                 self.packs[dirf] = None
 
-    def get_pack(self,name):
+    def get_pack(self, name):
         """
         Loads the Modpack data or gets it from the cache
-        throws IOException if it can't load the json the first time
         """
-
+        ret = None
         if self.packs[name] is None:
-            try:
-                 self.packs[name] = Modpack(name)
-            except Exception: #Catch all
-                ret = None
-        ret = self.packs[name]
+            self.packs[name] = Modpack(name)
+            ret = self.packs[name]
+        else:
+            ret = self.packs[name]
         return ret
 
     def list_packs(self):

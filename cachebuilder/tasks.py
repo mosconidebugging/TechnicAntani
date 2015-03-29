@@ -36,6 +36,7 @@ def build_all_caches():
 
     # Read up to date data from the filesystem
     mm = ModManager()  # GASP!
+    # TODO verify mm.errors
     pm = ModpackManager()
 
     for pack in pm.list_packs():
@@ -100,13 +101,15 @@ def build_all_caches():
             cachedver.latest = p.versions[packver]['latest']
             cachedver.recommended = p.versions[packver]['recommended']
             for mod in p.versions[packver]['mods'].keys():
+                if mod is None:
+                    continue
                 modcache = build_mod(mod, p.versions[packver]['mods'][mod], mm)
                 cachedver.mods.add(modcache)
     return True
 
 
 @shared_task
-def update_modpack(repo):
+def update_modpack(repo, user):
     """
     Updates the repo (the param is the dir|slug). It's just a git pull reporting True if there are updates
     """
@@ -141,6 +144,13 @@ def change_mod_repo(newrepo):
         system('rm -rf ' + MODREPO_DIR + '/.??*')
     system(GIT_EXEC + ' clone "' + newrepo + '" ' + MODREPO_DIR)
 
+
+@shared_task
+def pull_mods():
+    if path.isdir(path.join(MODREPO_DIR, '.git')):
+        system("cd " + MODREPO_DIR + " && " + GIT_EXEC + ' pull')
+
+
 @shared_task
 def clear_caches():
     delete_built()
@@ -158,5 +168,5 @@ def clear_caches():
 def purge_caches():
     mp = ModpackManager()
     for pack in mp.list_packs():
-        shutil.rmtree(os.path.join(MODPACKPATH,pack))
+        shutil.rmtree(os.path.join(MODPACKPATH, pack))
     clear_caches()

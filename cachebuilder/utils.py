@@ -107,12 +107,13 @@ def build_config(packname, version):
         return cfg
     cp = os.path.join(MODPACKPATH, packname, "config")
     cz = os.path.join(MODBUILD_DIR, sanitize_path(packname) + "_" + sanitize_path(version) + "_config.zip")
-    with zipfile.ZipFile(cz, "w", zipfile.ZIP_DEFLATED) as zipp1:
-        rootlen = len(cp)
-        for base, dirs, files in os.walk(cp):
-            for ifile in files:
-                fn = os.path.join(base, ifile)
-                zipp1.write(fn, "config" + fn[rootlen:])
+    if not os.path.exists(cz):
+        with zipfile.ZipFile(cz, "w", zipfile.ZIP_DEFLATED) as zipp1:
+            rootlen = len(cp)
+            for base, dirs, files in os.walk(cp):
+                for ifile in files:
+                    fn = os.path.join(base, ifile)
+                    zipp1.write(fn, "config" + fn[rootlen:])
     mi = get_mod_info_by_name(packname + "_config")
     if mi is None:
         mi = ModInfoCache()
@@ -179,4 +180,5 @@ def build_mod(name, version, mm):
 def delete_built():
     for base, dirs, files in os.walk(MODBUILD_DIR):
         for ifile in files:
-            os.unlink(os.path.join(base, ifile))
+            if not ifile.endswith('_config.zip'):
+               os.unlink(os.path.join(base, ifile))
