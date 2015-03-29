@@ -19,6 +19,8 @@ from TechnicAntani.settings import MODPACKPATH
 import os.path as path
 from os import listdir
 import json
+import pygit2
+import re
 import sys
 
 
@@ -27,37 +29,63 @@ class Modpack:
     def __init__(self, name):
         self.name = name
         mainkeys = [
-            'description', 'url'
+            'description', 'url', 'version'
         ]
-        versionkeys = [
-            'recommended', 'latest',
-            'mcversion', 'forgever'
-        ]
+
+
         modvers = [
             'version'
         ]
         try:
             meta = open(path.join(MODPACKPATH, name, "modpack.json"))
+            self.repo = pygit2.Repository(path.join(MODPACKPATH, name))
             obj = json.load(meta)
+            meta.close()
             for mkey in mainkeys:
                 setattr(self, mkey, obj[mkey])
-                self.versions = {}
-                for version in obj['versions'].keys():
-                    version_obj = {}
-                    for vkey in versionkeys:
-                        version_obj[vkey] = obj['versions'][version][vkey]
-                        version_obj['mods'] = {}
-                        for mod in obj['versions'][version]['mods'].keys():
-                            version_obj['mods'][mod] = obj['versions'][version]['mods'][mod]
-                    self.versions[version] = version_obj
-        except IOError:
+            self.versions = {}
+
+            self.repo.checkout('refs/remotes/origin/master')  # development
+            self.latest = self._read_version_only()
+            self.repo.checkout('refs/remotes/origin/stable')
+            self.recommended = self._read_version_only()
+
+            tags_re = re.compile('^refs/tags/(.+)$')
+            for ref in self.repo.listall_references():
+                m = tags_re.match(ref)
+                if m is not None:
+                    self._append_version(m.group(1))
+        except Exception:
             self.error = sys.exc_info()[0]
-        except KeyError:
-            self.error = sys.exc_info()[0]
-        except AttributeError:
-            self.error = sys.exc_info()[0]
-        finally:
+
+    def _read_version_only(self):
+        try:
+            meta = open(path.join(MODPACKPATH, self.name, "modpack.json"))
+            obj = json.load(meta)
+            ver = obj["version"]
             meta.close()
+            return ver
+        except Exception:
+            self.error = sys.exc_info()[0]
+
+    def _append_version(self, ref):
+        try:
+            self.repo.checkout(ref)
+            meta = open(path.join(MODPACKPATH, self.name, "modpack.json"))
+            obj = json.load(meta)
+            meta.close()
+            out = {}
+            versionkeys = [
+                'mcversion', 'forgever', 'version'
+            ]
+            for v in versionkeys:
+                out[v] = obj[v]
+            out['mods'] = {}
+            for mod in obj['mods'].keys():
+                out["mods"][mod] = obj["mods"][mod]
+            self.versions[out['version']] = out
+        except Exception:
+            self.error = sys.exc_info()[0]
 
     def get_background(self):
         return path.join(MODPACKPATH, self.name, "assets", "background.jpg")
