@@ -111,7 +111,7 @@ def build_all_caches():
 @shared_task
 def update_modpack(repo, user):
     """
-    Updates the repo (the param is the dir|slug). It's just a git pull reporting True if there are updates
+    Will update caches if new changes are pulled inn
     """
     log = logging.getLogger("update_modpack")
     output = Popen([GIT_EXEC, "pull"], stdout=PIPE, cwd=path.join(MODPACKPATH, repo)).communicate()[0]
@@ -119,6 +119,7 @@ def update_modpack(repo, user):
     if "No updates found" in output:
         log.warning('No updates found. Weird. Modpack:  ' + repo)
         return False
+    build_all_caches()
     return True
 
 
