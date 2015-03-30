@@ -57,7 +57,7 @@ class Mod:
         except KeyError:
             self.error = sys.exc_info()[0]
         except AttributeError:
-            self.error = "versions is not dictionary!!"
+            self.error = "versions is not a dictionary!!"
 
     def __str__(self):
         return self.slug
