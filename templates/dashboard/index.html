@@ -1,5 +1,18 @@
 {% extends 'index.html' %}
 {% block body %}
+{%  if git_ssh or git_https  %}
+<div class="alert alert-warning">
+The installation of pygit2 missed some dependencies during install. The following features will not work:
+    <ul>
+        {% if git_https %}
+            <li>Https (Missing openssl headers)</li>
+        {% endif %}
+        {% if git_ssh %}
+            <li>SSH (Missing libssh2 headers)</li>
+        {% endif %}
+    </ul>
+</div>
+{% endif %}
 <h1>Welcome to TechnicAntani 2</h1>
 {% for pack in packs %}
 <div class="media">
