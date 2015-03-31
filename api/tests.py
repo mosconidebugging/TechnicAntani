@@ -99,6 +99,7 @@ class ViewsTest(TestCase):
             'url': 'http://nope.org',
             'logo_md5' : '',
             'icon_md5':'',
+            'background':'http://testserver/antani/test/resources/background.jpg',
             'background_md5':'',
             'builds': ['1.0','1.1dev'],
             'latest': '1.1dev',
