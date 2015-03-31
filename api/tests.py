@@ -93,6 +93,8 @@ class ViewsTest(TestCase):
         obj = json.loads(out.content.decode())
         expected = {
             'name': 'test',
+            'icon': 'http://testserver/antani/test/resources/icon.png',
+            'logo': 'http://testserver/antani/test/resources/logo_180.png',
             'display_name': 'test_d',
             'url': 'http://nope.org',
             'logo_md5' : '',
