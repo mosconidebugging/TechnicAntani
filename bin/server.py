@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 import json
-from urllib.request import urlopen,urlretrieve
+from urllib.request import urlopen, urlretrieve
 import sys
 import shutil
 import os
@@ -20,10 +20,17 @@ def fetch_forge(version, mcver):
         return None
     return tpath
 
-
-data = urlopen(sys.argv[1]).read()
-
-obj = json.loads(data.decode('utf-8'))
+try:
+    data = urlopen(sys.argv[1]).read()
+    obj = json.loads(data.decode('utf-8'))
+except ValueError:
+    print("Cannot GET that url, or not valid json. Error:%s" % sys.exc_info()[0])
+    sys.exit(1)
+except IndexError:
+    print("Will download components of a modpack and unpack it.\n"
+          "\tYou still have to remove clientside mods.\n"
+          "Usage: server.py <SolderApiURL>/modpack/<modpackname>/<version>")
+    sys.exit(2)
 
 forgefile = fetch_forge(obj['forge'], obj['minecraft'])
 
