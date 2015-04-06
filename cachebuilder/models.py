@@ -30,4 +30,5 @@ class Error(models.Model):
     Errors to display to the user
     """
     user = models.ForeignKey(User, null=True)
+    style = models.CharField(default="info", max_length=63)
     error = models.TextField()

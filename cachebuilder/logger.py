@@ -37,5 +37,16 @@ class DatabaseLogger(logging.Handler):
             msg += "\n"
             for e in record.exc_info:
                 msg += e.__str__() + "\n"
+        if record.levelno is not None:
+            with record.levelno as lvl:
+                if lvl == logging.INFO:
+                    e.style = "info"
+                if lvl == logging.WARNING:
+                    e.style = "warning"
+                if lvl == logging.ERROR:
+                    e.style = "error"
+                if lvl == logging.DEBUG:
+                    e.style = "success"
+
         e.error = msg
         e.save()

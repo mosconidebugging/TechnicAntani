@@ -41,8 +41,11 @@ urlpatterns = patterns('',
                        # Cache builder
                        url(r'^cache/$', cachebuilder.index),
                        url(r'^cache/rebuild$', cachebuilder.build_caches),
+                       url(r'^cache/modpacks$', cachebuilder.clear_modpacks),
                        url(r'^cache/clear', cachebuilder.clear_caches),
+                        url(r'^cache/clear_logs$', cachebuilder.delete_logs),
                        url(r'^cache/purge$', cachebuilder.purge_caches),
+                       url(r'^inspect/logs$', cachebuilder.display_logs),
 
                        # Inspector
                        url(r'^inspect/mods$', 'inspector.views.inspect_mods'),

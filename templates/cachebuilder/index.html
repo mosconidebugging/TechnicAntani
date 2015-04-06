@@ -12,11 +12,25 @@
             </p>
         </div>
         <div class="col-xs-4">
+            <a href="{% url 'cachebuilder.views.delete_logs' %}" class="btn btn-primary btn-lg center-block"><span class="glyphicon-list-alt glyphicon"></span>&nbsp;Delete Logs</a>
+            <p></p>
+            <p>
+                This action begins an incremental build of caches. It triggers automatically after any repo is updated in git. This is just a manual trigger.
+            </p>
+        </div>
+        <div class="col-xs-4">
+            <a href="{% url 'cachebuilder.views.clear_modpacks' %}" class="btn btn-warning btn-lg center-block"><span class="glyphicon-warning-sign glyphicon"></span>&nbsp;Clear Modpacks</a>
+            <p></p>
+            <p>
+                DANGER! Deletes all caches for the modpacks. This will cleanup the database for modpacks. All caches can be rebuilt.
+            </p>
+        </div>
+        <div class="col-xs-4">
             <a href="{% url 'cachebuilder.views.clear_caches' %}" class="btn btn-warning btn-lg center-block"><span class="glyphicon-warning-sign glyphicon"></span>&nbsp;Clear</a>
             <p></p>
             <p>
                 DANGER! Deletes all caches in the database and the built mods in the directory. This resets all the database environment and build dir. Rebuild cache after operation is finished will restore
-                everything from the filesystem. Will not delete configs.
+                everything from the filesystem.
             </p>
         </div>
         <div class="col-xs-4">

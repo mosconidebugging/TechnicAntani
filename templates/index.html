@@ -51,6 +51,8 @@ This is the base page. Its design is extended by all private templates in Techni
                     <li class="divider"></li>
                     <li{% if 'modinsp' in menu %} class="active"{% endif %}><a href="{% url 'inspector.views.inspect_mods' %}">Mod Inspector</a></li>
                     <li{% if 'packinsp' in menu %} class="active"{% endif %}><a href="{% url 'inspector.views.inspect_packs' %}">Pack Inspector</a></li>
+                    <li class="divider"></li>
+                    <li{% if 'logsviewer' in menu %} class="active"{% endif %}><a href="{% url 'cachebuilder.views.display_logs' %}">Logs</a></li>
                 </ul>
             </li>
 
