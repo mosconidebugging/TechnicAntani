@@ -67,13 +67,15 @@ def fetch_forge(version, mcver):
     return tpath
 
 
-def build_forge(version, mcver):
+def build_forge(version, mcver, log=logging.getLogger("build_forge")):
     """
     Builds or returns a ModCache if already in cache
     """
     forge = ModCache.objects.all().filter(modInfo__name="forge").filter(version=version).first()
-    if not forge is None:
+    if forge is not None:
+        log.info("Forge %s found in cache. Serving %s" % (version, forge.localpath))
         return forge
+    log.info("Downloading forge")
     localfile = fetch_forge(version, mcver)
     built = os.path.join(MODBUILD_DIR, "forge_"+sanitize_path(mcver)+"_"+sanitize_path(version)+".zip")
     with zipfile.ZipFile(built, "w", zipfile.ZIP_DEFLATED) as zipp1:
@@ -95,16 +97,19 @@ def build_forge(version, mcver):
     mc.localpath = built
     mc.version = version
     mc.save()
+    log.info("Forge saved in cache")
     return mc
 
 
-def build_config(packname, version):
+def build_config(packname, version, log=logging.getLogger("build_config")):
     """
     Build a config zip from the package name.
     """
     cfg = ModCache.objects.all().filter(modInfo__name=packname+"_config").filter(version=version).first()
-    if not cfg is None:
+    if cfg is not None:
+        log.info("Found config in cache.")
         return cfg
+    log.info("Packing config into a prepackaged mod")
     cp = os.path.join(MODPACKPATH, packname, "config")
     cz = os.path.join(MODBUILD_DIR, sanitize_path(packname) + "_" + sanitize_path(version) + "_config.zip")
     if not os.path.exists(cz):
@@ -130,15 +135,15 @@ def build_config(packname, version):
     mc.localpath = cz
     mc.version = version
     mc.save()
+    log.info("Config packaged")
     return mc
 
 
-def build_mod(name, version, mm):
+def build_mod(name, version, mm, log=logging.getLogger("build_mod")):
     """
     Builds the mod into the cache. Modmanager is passed for performance reasons
     """
-    print("Building " + name)
-    log = logging.getLogger("build_mod")
+    log.info("Building " + name)
     mc = ModCache.objects.all().filter(modInfo__name=name).filter(version=version).first()
     if not mc is None:
         return mc
@@ -180,5 +185,4 @@ def build_mod(name, version, mm):
 def delete_built():
     for base, dirs, files in os.walk(MODBUILD_DIR):
         for ifile in files:
-            if not ifile.endswith('_config.zip'):
-               os.unlink(os.path.join(base, ifile))
+            os.unlink(os.path.join(base, ifile))

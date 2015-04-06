@@ -22,12 +22,17 @@ import json
 import pygit2
 import re
 import sys
-
+import logging
 
 class Modpack:
     error = None
-    def __init__(self, name):
+    log = logging.getLogger("ModPack")
+
+    def __init__(self, name, log=None):
         self.name = name
+        if log is not None:
+            self.log = log
+        self.log.info("Initializing ModPack \"%s\"" % name)
         mainkeys = [
             'description', 'url', 'version'
         ]
@@ -55,8 +60,11 @@ class Modpack:
                 m = tags_re.match(ref)
                 if m is not None:
                     self._append_version(m.group(1))
-        except Exception:
+        except IOError:
+            self.log.error("Cannot read modpack.json!")
             self.error = sys.exc_info()[0]
+        except KeyError:
+            self.log.error("Cannot find a required key", exc_info=True)
 
     def _read_version_only(self):
         try:
@@ -66,6 +74,7 @@ class Modpack:
             meta.close()
             return ver
         except Exception:
+            self.log.error("Cannot read version from file!", exc_info=True)
             self.error = sys.exc_info()[0]
 
     def _append_version(self, ref):
@@ -85,6 +94,7 @@ class Modpack:
                 out["mods"][mod] = obj["mods"][mod]
             self.versions[out['version']] = out
         except Exception:
+            self.log.waening("Cannot read modpack info from ref %s. WIll skip." % ref, exc_info=True)
             self.error = sys.exc_info()[0]
 
     def get_background(self):
@@ -111,13 +121,17 @@ class ModpackManager:
     Lazy loader for modpack data
     """
     packs = {}
+    log = logging.getLogger("ModpackManager")
 
-    def __init__(self):
+    def __init__(self, log=None):
         """
         Initialize in a VERY lazy way
         """
+        if log is not None:
+            self.log = log
         for dirf in listdir(MODPACKPATH):
             if path.isdir(path.join(MODPACKPATH, dirf)):
+                self.log("Found modpack \"%s\"" % dirf)
                 self.packs[dirf] = None
 
     def get_pack(self, name):
@@ -126,7 +140,7 @@ class ModpackManager:
         """
         ret = None
         if self.packs[name] is None:
-            self.packs[name] = Modpack(name)
+            self.packs[name] = Modpack(name, self.log)
             ret = self.packs[name]
         else:
             ret = self.packs[name]

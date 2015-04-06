@@ -16,6 +16,7 @@
 #############################################################################
 
 import os
+import logging
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 # Settings for antani setup
@@ -51,3 +52,6 @@ SERVE_DOMAIN = ""
 
 # The webpath of the server. If unsure, ignore
 SERVE_URL = "/antani/"
+
+# Verbosity of the logging page
+LOGLEVEL = logging.INFO

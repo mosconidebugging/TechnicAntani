@@ -18,26 +18,28 @@
 from celery import shared_task
 from cachebuilder.mod_manager import *
 from cachebuilder.pack_manager import *
+from cachebuilder.models import Error
 from api.models import *
 from os import path
 from cachebuilder.utils import checksum_file, build_forge, build_config, build_mod, sanitize_path, delete_built
 import logging
 import shutil
 import pygit2
-
+from cachebuilder.logger import DatabaseLogger
 
 @shared_task
-def build_all_caches():
+def build_all_caches(user=None):
     """
     Updates all caches. Takes forever if there are many things to build
     throws FileNotFoundError if a mod we don't track is requested
     """
-    log = logging.getLogger("build_caches")
+    log = logging.getLogger("build_all_caches")
+    handle = DatabaseLogger(user)
+    log.addHandler(handle)
 
     # Read up to date data from the filesystem
-    mm = ModManager()  # GASP!
-    # TODO verify mm.errors
-    pm = ModpackManager()
+    mm = ModManager(log)  # GASP!
+    pm = ModpackManager(log)
 
     for pack in pm.list_packs():
         p = pm.get_pack(pack)
@@ -45,9 +47,10 @@ def build_all_caches():
 
         # Create pack cache if not in the Database
         if pc is None:
+            log.info("Building cache for pack %s" % pack)
             # Skip. Not a valid pack
             if p is None:
-                log.error("Pack " + pack + " is None. WTF")
+                log.error("Pack " + pack + " has errors. Fix them. Skipping.")
                 continue
             pc = ModpackCache()
             pc.slug = pack
@@ -55,6 +58,7 @@ def build_all_caches():
             pc.description = p.description
             pc.url = p.url
 
+        log.info("Refreshing assets for pack %s." % pack)
         # Refresh md5 - just in case the images were changed
         pc.background_md5 = checksum_file(p.get_background())
         pc.logo_md5 = checksum_file(p.get_logo())
@@ -63,6 +67,7 @@ def build_all_caches():
 
         # Copy over assets
         if not os.path.exists(os.path.join(MODBUILD_DIR, pack)):
+            log.info("Asset directory does not exist")
             os.mkdir(os.path.join(MODBUILD_DIR, pack))
             os.mkdir(os.path.join(MODBUILD_DIR, pack, 'resources'))
 
@@ -75,6 +80,7 @@ def build_all_caches():
 
         # Cycle through every version of the pack
         for packver in p.versions.keys():
+            log.info("Processing version \"%s\"" % packver)
             cachedver = VersionCache.objects.all().filter(modpack=pc, version=packver).first()
 
             # Create cache for version if it doesn't exist - aka build it
@@ -91,21 +97,23 @@ def build_all_caches():
 
                 # Package forge as modpack.jar. We have to see what to do in the future.
                 if not cachedver.forgever == "":
-                    forgever = build_forge(cachedver.forgever, cachedver.mcversion)
+                    log.info("Found forge requirement: %s" % cachedver.forgever)
+                    forgever = build_forge(cachedver.forgever, cachedver.mcversion, log)
                     cachedver.mods.add(forgever)
 
                 # Package the zippone with current config in git
-                confcache = build_config(pc.slug, cachedver.version)
+                confcache = build_config(pc.slug, cachedver.version,log)
                 cachedver.mods.add(confcache)
 
             cachedver.latest = p.versions[packver]['latest']
             cachedver.recommended = p.versions[packver]['recommended']
             for mod in p.versions[packver]['mods'].keys():
                 if mod is None:
+                    log.warning("Strange. Mod is None. Skipping")
                     continue
-                modcache = build_mod(mod, p.versions[packver]['mods'][mod], mm)
+                modcache = build_mod(mod, p.versions[packver]['mods'][mod], mm, log)
                 cachedver.mods.add(modcache)
-    return True
+    log.removeHandler(handle)
 
 
 @shared_task
@@ -162,14 +170,24 @@ def pull_mods():
 @shared_task
 def clear_caches():
     delete_built()
-    for obj in VersionCache.objects.all():
-        obj.delete()
-    for obj in ModpackCache.objects.all():
-        obj.delete()
+    clear_modpacks()
     for obj in ModCache.objects.all():
         obj.delete()
     for obj in ModInfoCache.objects.all():
         obj.delete()
+
+
+@shared_task
+def clear_modpacks():
+    for obj in VersionCache.objects.all():
+        obj.delete()
+    for obj in ModpackCache.objects.all():
+        obj.delete()
+
+
+@shared_task
+def clear_log():
+    Error.objects.all().delete()
 
 
 @shared_task

@@ -29,5 +29,5 @@ class Error(models.Model):
     """
     Errors to display to the user
     """
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, null=True)
     error = models.TextField()

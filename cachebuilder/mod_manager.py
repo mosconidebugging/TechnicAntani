@@ -21,18 +21,21 @@ from os import path, walk
 from TechnicAntani.settings import MODREPO_DIR
 import json
 import sys
+import logging
 
 
 class Mod:
     error = None
 
-    def __init__(self, dirname):
-        # TODO sanitizing and syntax check
+    def __init__(self, dirname, log=None):
         versionf = open(path.join(dirname, "mod.json"))
         self.slug = dirname.split(path.sep)[-1]
+        if log is None:
+            log = logging.getLogger("Mod")
         try:
             obj = json.load(versionf)
         except ValueError:
+            log.error("Cannot parse json. JSON is malformed.", exc_info=True)
             self.error = sys.exc_info()[0]
             return
         finally:
@@ -44,6 +47,7 @@ class Mod:
             self.url = obj["url"]
             self.type = obj["type"]  # mod, prepackaged
         except KeyError:
+            log.error("Missing required first level attributes.", exc_info=True)
             self.error = sys.exc_info()[0]
             return
         self.versions = {}
@@ -55,8 +59,10 @@ class Mod:
                     'mcvers': obj["versions"][version]['minecraft']
                 }
         except KeyError:
+            log.error("Missing mod version required params", exc_info=True)
             self.error = sys.exc_info()[0]
         except AttributeError:
+            log.error("\"versions\" is not a dictionary.", exc_info=True)
             self.error = "versions is not a dictionary!!"
 
     def __str__(self):
@@ -68,13 +74,17 @@ class Mod:
 
 class ModManager:
     errors = {}
+    log = logging.getLogger("ModManager")
 
-    def __init__(self):
+    def __init__(self, log=None):
+        if log is not None:
+            self.log = log
         self.fspath = MODREPO_DIR
         self.mods = []
         for root, dirs, files in walk(self.fspath):
             if "mod.json" in files:
-                mod = Mod(root)
+                self.log.info("Found %s in %s" % (root.split(path.sep)[-1], root))
+                mod = Mod(root, self.log)
                 if mod.error is not None:
                     self.errors[mod.slug] = mod.error
                 self.mods.append(mod)

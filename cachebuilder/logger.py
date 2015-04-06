@@ -1,32 +1,41 @@
+#############################################################################
+#                                                                           #
+#    This program is free software: you can redistribute it and/or modify   #
+#    it under the terms of the GNU General Public License as published by   #
+#    the Free Software Foundation, either version 3 of the License, or      #
+#    (at your option) any later version.                                    #
+#                                                                           #
+#    This program is distributed in the hope that it will be useful,        #
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of         #
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          #
+#    GNU General Public License for more details.                           #
+#                                                                           #
+#    You should have received a copy of the GNU General Public License      #
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.  #
+#                                                                           #
+#############################################################################
+
 import logging
-import io
-
-# Set log level here
-loglevel = logging.INFO
+from cachebuilder.models import Error
+from TechnicAntani.antanisettings import LOGLEVEL
 
 
-class Logger(object):
+class DatabaseLogger(logging.Handler):
     """
     Detain all the logs
     """
-    _instance = None
-    stream = io.StringIO()
+    def __init__(self, user=None):
+        super.__init__(level=LOGLEVEL)
+        self.user = user
 
-    def __new__(cls, *args, **kwargs):
-        """
-        We all love singletons
-        """
-        if not cls._instance:
-            cls._instance = super(Logger, cls).__new__(
-                                cls, *args, **kwargs)
-        return cls._instance
+    def handle(self, record):
+        e = Error()
+        e.user = self.user
 
-    def __init__(self):
-        logging.basicConfig(stream=self.stream, level=loglevel)
-
-    def getAll(self):
-        self.stream.seek(0)
-        str = self.stream.read()
-        self.stream = io.StringIO()
-        logging.basicConfig(stream=self.stream, level=loglevel)
-        return str
+        msg = record.getMessage()
+        if record.exc_info:
+            msg += "\n"
+            for e in record.exc_info:
+                msg += e.__str__() + "\n"
+        e.error = msg
+        e.save()
