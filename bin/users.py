@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 #############################################################################
 #                                                                           #
 #    This program is free software: you can redistribute it and/or modify   #
@@ -16,17 +17,26 @@
 #############################################################################
 
 from __future__ import print_function
-import sys
 from getpass import getpass
 import os
+from os import path
+import sys
+try:
+    # Try to guess pythonpath
+    curdir = sys.path[0]
+    if curdir != '':
+        sys.path.append(path.sep.join(curdir.split(path.sep)[0:-1]))
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "TechnicAntani.settings")
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "TechnicAntani.settings")
 
-# here be dragons (aka django)
-import django
-from django.contrib.auth.models import User
-
-django.setup()
+    # here be dragons (aka django)
+    import django
+    from django.contrib.auth.models import User
+    django.setup()
+except ImportError:
+    print("Cannot import settings module. Have you set PYTHONPATH?\n\nYou need to set PYTHONPATH to the directory"
+          " containing TechnicAntani")
+    sys.exit(1)
 
 
 def list_users(args):

@@ -95,8 +95,13 @@ def display_logs(request):
 
 @csrf_exempt
 def git_webhook(request):
-    obj = json.loads(request.body.decode("utf-8"))
+    try:
+        obj = json.loads(request.body.decode("utf-8"))
+    except ValueError:
+        return HttpResponse("Git Webhook Service. Payload is not valid json.")
     signature = request.META['HTTP_X_HUB_SIGNATURE']
+    if signature is None:
+        return HttpResponse("Git Webhook Service. Missing X-Hub-Signature.")
     signature = signature.split("=")[1]
     repo_name = obj['repository']['name']
     try:
