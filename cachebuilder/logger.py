@@ -44,7 +44,7 @@ class DatabaseLogger(logging.Handler):
                 if lvl == logging.WARNING:
                     e.style = "warning"
                 if lvl == logging.ERROR:
-                    e.style = "error"
+                    e.style = "danger"
                 if lvl == logging.DEBUG:
                     e.style = "success"
 

@@ -42,7 +42,8 @@ INSTALLED_APPS = (
     'cachebuilder',
     'inspector',
     "dashboard",
-    "admin"
+    "admin",
+    'debug_toolbar'
 )
 
 MIDDLEWARE_CLASSES = (

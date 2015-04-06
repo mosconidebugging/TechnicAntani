@@ -23,7 +23,7 @@ from cachebuilder.forms import CreatePack, get_repo_name
 import json
 import hmac
 import hashlib
-from cachebuilder.models import RepoSecret,Error
+from cachebuilder.models import RepoSecret, Error
 from django.views.decorators.csrf import csrf_exempt
 
 @login_required
@@ -80,9 +80,9 @@ def create_modpack(request):
 
 
 @login_required
-def delete_logs(request):
-    mytasks.clear_log.delay()
-    return redirect(index)
+def delete_all_logs(request):
+    Error.objects.all().delete()
+    return redirect("LOGS")
 
 
 @login_required
@@ -91,6 +91,7 @@ def display_logs(request):
         "logs": Error.objects.all(),
         "menu" : "cache logsviewer"
     })
+
 
 @csrf_exempt
 def git_webhook(request):
