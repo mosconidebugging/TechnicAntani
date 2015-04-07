@@ -1,4 +1,6 @@
-# TechnicAntani 2 [![Build Status](https://travis-ci.org/admiral0/TechnicAntani.svg?branch=master)](https://travis-ci.org/admiral0/TechnicAntani)
+# TechnicAntani 2
+[![Build Status](https://travis-ci.org/admiral0/TechnicAntani.svg?branch=master)](https://travis-ci.org/admiral0/TechnicAntani)
+[![Project Stats](https://www.openhub.net/p/TechnicAntani/widgets/project_thin_badge.gif)](https://www.openhub.net/p/TechnicAntani)
 
 ## WARNING: This is an alpha version.
 
