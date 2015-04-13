@@ -25,7 +25,7 @@ class DatabaseLogger(logging.Handler):
     Detain all the logs
     """
     def __init__(self, user=None):
-        super.__init__(level=LOGLEVEL)
+        super().__init__(level=LOGLEVEL)
         self.user = user
 
     def handle(self, record):
