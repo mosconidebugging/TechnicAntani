@@ -3,7 +3,7 @@ debug_toolbar
 var
 py/
 .idea
-**/*.pyc
-**/*.pyo
+*.pyc
+*.pyo
 TechnicAntani/settings.py
 TechnicAntani/antanisettings.py
