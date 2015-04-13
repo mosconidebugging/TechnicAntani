@@ -94,7 +94,7 @@ class Modpack:
                 out["mods"][mod] = obj["mods"][mod]
             self.versions[out['version']] = out
         except Exception:
-            self.log.waening("Cannot read modpack info from ref %s. WIll skip." % ref, exc_info=True)
+            self.log.warning("Cannot read modpack info from ref %s. WIll skip." % ref, exc_info=True)
             self.error = sys.exc_info()[0]
 
     def get_background(self):
