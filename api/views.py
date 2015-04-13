@@ -28,7 +28,7 @@ from os import path
 
 def get_root_for(r, p, url):
     return path.join(
-        SERVE_DOMAIN + SERVE_URL if (SERVE_DOMAIN != "") else "http://" + r.get_host() + SERVE_URL,
+        SERVE_DOMAIN + SERVE_URL if (SERVE_DOMAIN != "") else SERVE_PROTO + "://" + r.get_host() + SERVE_URL,
         p,
         url
     )
@@ -46,7 +46,7 @@ def modpack_list(request):
     result = {
         'modpacks': {}
     }
-    mirror_url = SERVE_DOMAIN + SERVE_URL if (SERVE_DOMAIN != "") else "http://" + request.get_host() + SERVE_URL
+    mirror_url = SERVE_DOMAIN + SERVE_URL if (SERVE_DOMAIN != "") else SERVE_PROTO + "://" + request.get_host() + SERVE_URL
     for modpacko in ModpackCache.objects.all():
         result['modpacks'][modpacko.slug] = modpacko.name
     result['mirror_url'] = fucking_php_escape(mirror_url)

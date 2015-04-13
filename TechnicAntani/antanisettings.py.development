@@ -55,5 +55,8 @@ SERVE_DOMAIN = ""
 # The webpath of the server. If unsure, ignore
 SERVE_URL = "/antani/"
 
+# The protocol used to serve files. If unsere, ignore.
+SERVE_PROTO = 'http'
+
 # Verbosity of the logging page
 LOGLEVEL = logging.INFO
