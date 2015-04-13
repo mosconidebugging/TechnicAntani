@@ -59,7 +59,7 @@ class Modpack:
             for ref in self.repo.listall_references():
                 m = tags_re.match(ref)
                 if m is not None:
-                    self._append_version(m.group(1))
+                    self._append_version(ref)
         except IOError:
             self.log.error("Cannot read modpack.json!")
             self.error = sys.exc_info()[0]
