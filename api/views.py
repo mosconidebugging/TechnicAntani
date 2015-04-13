@@ -60,7 +60,7 @@ def fucking_php_escape(string):
 
 
 def index(request):
-    return HttpResponse('{"api":"TechnicSolder","version":"0.7","stream":"DEV","extraver":"0.1antani"}')
+    return HttpResponse('{"api":"TechnicSolder","version":"0.7","stream":"DEV","extraver":"0.1antani"}', content_type="application/json")
 
 
 def modpack_list(request):
@@ -84,7 +84,7 @@ def modpack_list(request):
 def modpack(request, slug):
     result = get_modpack(request, slug)
 
-    return HttpResponse(json.dumps(result).replace("\\\\", "\\"))
+    return HttpResponse(json.dumps(result).replace("\\\\", "\\"), content_type="application/json")
 
 
 def modpack_build(request, slug, build):
@@ -103,7 +103,7 @@ def modpack_build(request, slug, build):
             "url": fucking_php_escape(modo.get_url(request)),
         }
         result["mods"].append(m)
-    return HttpResponse(json.dumps(result).replace("\\\\", "\\"))
+    return HttpResponse(json.dumps(result).replace("\\\\", "\\"), content_type="application/json")
 
 
 def verify(request, apikey=None):
@@ -118,7 +118,7 @@ def verify(request, apikey=None):
         result["valid"] = "Key validated."
     else:
         result["error"] = "Invalid key provided."
-    return HttpResponse(json.dumps(result))
+    return HttpResponse(json.dumps(result), content_type="application/json")
 
 
 def mod(request, modslug=None):
@@ -139,7 +139,7 @@ def mod(request, modslug=None):
     }
     for f in fcs:
         result["versions"].append(f.version)
-    return HttpResponse(json.dumps(result).replace("\\\\", "\\"))
+    return HttpResponse(json.dumps(result).replace("\\\\", "\\"), content_type="application/json")
 
 
 def apikeys_manage(request):
