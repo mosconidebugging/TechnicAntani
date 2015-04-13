@@ -34,6 +34,8 @@ MODPACKPATH = os.path.join(BASE_DIR, "var", "packrepo")
 
 # The path the mod repo will be cloned to. Must be writable
 MODREPO_DIR = os.path.join(BASE_DIR, 'var', 'modrepo')
+# Gihub user.
+MODREPO_USER = "user"
 # Github secret. If NONE will not be verified
 MODREPO_PASS = "Pass"
 # Githhub remote dir. If set to None, feature will be disabled. You can also use rsync.
