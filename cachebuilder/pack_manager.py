@@ -131,7 +131,7 @@ class ModpackManager:
             self.log = log
         for dirf in listdir(MODPACKPATH):
             if path.isdir(path.join(MODPACKPATH, dirf)):
-                self.log("Found modpack \"%s\"" % dirf)
+                self.log.info("Found modpack \"%s\"" % dirf)
                 self.packs[dirf] = None
 
     def get_pack(self, name):
