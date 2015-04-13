@@ -25,6 +25,7 @@ def initialize(request):
         for remote in repo.remotes:
             if remote.name == 'origin':
                 result = remote.fetch()
+        repo.checkout('refs/remotes/origin/master')
     else:
         shutil.rmtree(settings.MODREPO_DIR)
 
