@@ -25,6 +25,27 @@ import json
 import re
 from os import path
 
+def get_modpack(request, slug):
+    result = {}
+    m = ModpackCache.objects.get(slug=slug)
+    result["name"] = m.slug
+    result["display_name"] = m.name
+    result["url"] = m.url
+    result["logo"] = get_root_for(request, slug, "resources/logo_180.png")
+    result["icon"] = get_root_for(request, slug, "resources/icon.png")
+    result["background"] = get_root_for(request, slug, "resources/background.jpg")
+    result["logo_md5"] = m.logo_md5
+    result["icon_md5"] = m.icon_md5
+    result["background_md5"] = m.background_md5
+    result["builds"] = []
+    for b in VersionCache.objects.all().filter(modpack=m):
+        result["builds"].append(b.version)
+        if b.recommended:
+            result["recommended"] = b.version
+        if b.latest:
+            result["latest"] = b.version
+
+    return result
 
 def get_root_for(r, p, url):
     return path.join(
@@ -47,31 +68,21 @@ def modpack_list(request):
         'modpacks': {}
     }
     mirror_url = SERVE_DOMAIN + SERVE_URL if (SERVE_DOMAIN != "") else SERVE_PROTO + "://" + request.get_host() + SERVE_URL
+
+    include = request.GET.get('include','')
+
     for modpacko in ModpackCache.objects.all():
+      if include == 'full':
+        result['modpacks'][modpacko.slug] = get_modpack(request, modpacko.slug)
+      else:
         result['modpacks'][modpacko.slug] = modpacko.name
+
     result['mirror_url'] = fucking_php_escape(mirror_url)
     return HttpResponse(json.dumps(result).replace("\\\\", "\\"))
 
 
 def modpack(request, slug):
-    result = {}
-    m = ModpackCache.objects.get(slug=slug)
-    result["name"] = m.slug
-    result["display_name"] = m.name
-    result["url"] = m.url
-    result["logo"] = get_root_for(request, slug, "resources/logo_180.png")
-    result["icon"] = get_root_for(request, slug, "resources/icon.png")
-    result["background"] = get_root_for(request, slug, "resources/background.jpg")
-    result["logo_md5"] = m.logo_md5
-    result["icon_md5"] = m.icon_md5
-    result["background_md5"] = m.background_md5
-    result["builds"] = []
-    for b in VersionCache.objects.all().filter(modpack=m):
-        result["builds"].append(b.version)
-        if b.recommended:
-            result["recommended"] = b.version
-        if b.latest:
-            result["latest"] = b.version
+    result = get_modpack(request, slug)
 
     return HttpResponse(json.dumps(result).replace("\\\\", "\\"))
 
