@@ -25,35 +25,7 @@ import json
 import re
 from os import path
 
-
-def get_root_for(r, p, url):
-    return path.join(
-        SERVE_DOMAIN + SERVE_URL if (SERVE_DOMAIN != "") else "http://" + r.get_host() + SERVE_URL,
-        p,
-        url
-    )
-
-def fucking_php_escape(string):
-    strout = re.sub("([/])", r'\\\1', string)
-    return strout
-
-
-def index(request):
-    return HttpResponse('{"api":"TechnicSolder","version":"0.7","stream":"DEV","extraver":"0.1antani"}')
-
-
-def modpack_list(request):
-    result = {
-        'modpacks': {}
-    }
-    mirror_url = SERVE_DOMAIN + SERVE_URL if (SERVE_DOMAIN != "") else "http://" + request.get_host() + SERVE_URL
-    for modpacko in ModpackCache.objects.all():
-        result['modpacks'][modpacko.slug] = modpacko.name
-    result['mirror_url'] = fucking_php_escape(mirror_url)
-    return HttpResponse(json.dumps(result).replace("\\\\", "\\"))
-
-
-def modpack(request, slug):
+def get_modpack(request, slug):
     result = {}
     m = ModpackCache.objects.get(slug=slug)
     result["name"] = m.slug
@@ -73,7 +45,46 @@ def modpack(request, slug):
         if b.latest:
             result["latest"] = b.version
 
+    return result
+
+def get_root_for(r, p, url):
+    return path.join(
+        SERVE_DOMAIN + SERVE_URL if (SERVE_DOMAIN != "") else SERVE_PROTO + "://" + r.get_host() + SERVE_URL,
+        p,
+        url
+    )
+
+def fucking_php_escape(string):
+    strout = re.sub("([/])", r'\\\1', string)
+    return strout
+
+
+def index(request):
+    return HttpResponse('{"api":"TechnicSolder","version":"0.7","stream":"DEV","extraver":"0.1antani"}', content_type="application/json")
+
+
+def modpack_list(request):
+    result = {
+        'modpacks': {}
+    }
+    mirror_url = SERVE_DOMAIN + SERVE_URL if (SERVE_DOMAIN != "") else SERVE_PROTO + "://" + request.get_host() + SERVE_URL
+
+    include = request.GET.get('include','')
+
+    for modpacko in ModpackCache.objects.all():
+      if include == 'full':
+        result['modpacks'][modpacko.slug] = get_modpack(request, modpacko.slug)
+      else:
+        result['modpacks'][modpacko.slug] = modpacko.name
+
+    result['mirror_url'] = fucking_php_escape(mirror_url)
     return HttpResponse(json.dumps(result).replace("\\\\", "\\"))
+
+
+def modpack(request, slug):
+    result = get_modpack(request, slug)
+
+    return HttpResponse(json.dumps(result).replace("\\\\", "\\"), content_type="application/json")
 
 
 def modpack_build(request, slug, build):
@@ -92,7 +103,7 @@ def modpack_build(request, slug, build):
             "url": fucking_php_escape(modo.get_url(request)),
         }
         result["mods"].append(m)
-    return HttpResponse(json.dumps(result).replace("\\\\", "\\"))
+    return HttpResponse(json.dumps(result).replace("\\\\", "\\"), content_type="application/json")
 
 
 def verify(request, apikey=None):
@@ -107,7 +118,7 @@ def verify(request, apikey=None):
         result["valid"] = "Key validated."
     else:
         result["error"] = "Invalid key provided."
-    return HttpResponse(json.dumps(result))
+    return HttpResponse(json.dumps(result), content_type="application/json")
 
 
 def mod(request, modslug=None):
@@ -128,7 +139,7 @@ def mod(request, modslug=None):
     }
     for f in fcs:
         result["versions"].append(f.version)
-    return HttpResponse(json.dumps(result).replace("\\\\", "\\"))
+    return HttpResponse(json.dumps(result).replace("\\\\", "\\"), content_type="application/json")
 
 
 def apikeys_manage(request):

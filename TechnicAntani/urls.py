@@ -33,7 +33,7 @@ urlpatterns = patterns('',
                        url(r'^apikeys$', 'api.views.apikeys_manage'),
 
                        # Home - temporarily use cache builder
-                       url(r'^$', dashboard.index),
+                       url(r'^$', dashboard.index, name="index"),
 
                        url(r'^admin/modrepo$', admin.modrepo, name="modrepo"),
                        url(r'^admin/init_or_pull_modrepo$', admin.initialize, name="initmodrepo"),
@@ -54,8 +54,7 @@ urlpatterns = patterns('',
                        url(r'^modpack/create$', cachebuilder.create_modpack),
 
                        url(r'^hooks/github$', cachebuilder.git_webhook, name="github"),
-                       url(r'^hooks/modpack$', cachebuilder.modrepo_webhook, name="modrepo")
-
+                       url(r'^hooks/modpack$', cachebuilder.modrepo_webhook, name="hookmodrepo")
                        )
 
 if settings.DEBUG:

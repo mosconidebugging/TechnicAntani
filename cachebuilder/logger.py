@@ -25,7 +25,7 @@ class DatabaseLogger(logging.Handler):
     Detain all the logs
     """
     def __init__(self, user=None):
-        super.__init__(level=LOGLEVEL)
+        super().__init__(level=LOGLEVEL)
         self.user = user
 
     def handle(self, record):
@@ -38,15 +38,15 @@ class DatabaseLogger(logging.Handler):
             for e in record.exc_info:
                 msg += e.__str__() + "\n"
         if record.levelno is not None:
-            with record.levelno as lvl:
-                if lvl == logging.INFO:
-                    e.style = "info"
-                if lvl == logging.WARNING:
-                    e.style = "warning"
-                if lvl == logging.ERROR:
-                    e.style = "danger"
-                if lvl == logging.DEBUG:
-                    e.style = "success"
+            lvl = record.levelno
+            if lvl == logging.INFO:
+                e.style = "info"
+            if lvl == logging.WARNING:
+                e.style = "warning"
+            if lvl == logging.ERROR:
+                e.style = "danger"
+            if lvl == logging.DEBUG:
+                e.style = "success"
 
         e.error = msg
         e.save()

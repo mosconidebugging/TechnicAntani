@@ -58,8 +58,17 @@ def fetch_forge(version, mcver):
     Fetches forge from files.minecraftforge.org and returns the
     path it was saved into
     """
-    logging.getLogger("fetch_forge").info("Fetching forge v" + version)
-    url = "http://files.minecraftforge.net/maven/net/minecraftforge/forge/" + mcver + "-" + version + "/forge-" + mcver + "-" + version + "-universal.jar"
+    log =  logging.getLogger("fetch_forge")
+
+    base_url = "http://files.minecraftforge.net/maven/net/minecraftforge/forge/"
+
+    if version < "10.13.2.1340":
+      url = base_url + mcver + "-" + version + "/forge-" + mcver + "-" + version + "-universal.jar"
+    else:
+      url = base_url + mcver + "-" + version + "-" + mcver + "/forge-" + mcver + "-" + version + "-" + mcver + "-universal.jar"
+
+    log.info("Fetching forge v" + version + " at " + url)
+
     (tpath, message) = urlretrieve(url)
     if message.get_content_type() != "application/java-archive":
         logging.getLogger("fetch_forge").error("Cannot find url " + url)

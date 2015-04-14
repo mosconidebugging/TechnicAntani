@@ -59,7 +59,7 @@ class Modpack:
             for ref in self.repo.listall_references():
                 m = tags_re.match(ref)
                 if m is not None:
-                    self._append_version(m.group(1))
+                    self._append_version(ref)
         except IOError:
             self.log.error("Cannot read modpack.json!")
             self.error = sys.exc_info()[0]
@@ -94,7 +94,7 @@ class Modpack:
                 out["mods"][mod] = obj["mods"][mod]
             self.versions[out['version']] = out
         except Exception:
-            self.log.waening("Cannot read modpack info from ref %s. WIll skip." % ref, exc_info=True)
+            self.log.warning("Cannot read modpack info from ref %s. WIll skip." % ref, exc_info=True)
             self.error = sys.exc_info()[0]
 
     def get_background(self):
@@ -131,7 +131,7 @@ class ModpackManager:
             self.log = log
         for dirf in listdir(MODPACKPATH):
             if path.isdir(path.join(MODPACKPATH, dirf)):
-                self.log("Found modpack \"%s\"" % dirf)
+                self.log.info("Found modpack \"%s\"" % dirf)
                 self.packs[dirf] = None
 
     def get_pack(self, name):
