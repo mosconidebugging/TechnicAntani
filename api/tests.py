@@ -110,7 +110,7 @@ class ViewsTest(TestCase):
     def test_modpack_version(self):
         from .views import modpack_build
         r = self.factory.get('/api/modpack/test/1.0')
-        out = json.loads(modpack_build(r,'test','1.0').content.decode())
+        out = json.loads(modpack_build(r, 'test', '1.0').content.decode())
         expected = {
             'forge': 'nover',
             'minecraft': '1.6.4',
@@ -120,13 +120,13 @@ class ViewsTest(TestCase):
                     'version': '1.2',
                     'name': 'mod',
                     'md5': 'somemd52',
-                    'url': 'http://testserver/antani/mods/issue2'
+                    'url': 'http://testserver/antani/issue2'
                 },
                 {
                     'version': '1.03',
                     'name': 'mod2',
                     'md5': 'somemd53',
-                    'url': 'http://testserver/antani/mods/issue3'
+                    'url': 'http://testserver/antani/issue3'
                 }
             ]}
         self.assertDictEqual(out,expected)
