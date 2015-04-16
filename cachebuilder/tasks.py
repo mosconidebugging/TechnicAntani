@@ -105,8 +105,6 @@ def build_all_caches(user=None):
                 confcache = build_config(pc.slug, cachedver.version,log)
                 cachedver.mods.add(confcache)
 
-            cachedver.latest = p.versions[packver]['latest']
-            cachedver.recommended = p.versions[packver]['recommended']
             for mod in p.versions[packver]['mods'].keys():
                 if mod is None:
                     log.warning("Strange. Mod is None. Skipping")
