@@ -17,8 +17,13 @@ This is a rewrite of TechnicSolder in python-django 1.7+. It has a couple of req
 ## Why
 Because I want to bring modpack development and server management to a whole new level.
 
+## Current Features
+ * Mod repo management. The mod repo is the mod collection available to modpacks. Can be a dumb folder to sync with
+  rsync, dropbox, syncthing, whatever or a git repo (not recommended)
+ * Modpack management. All modpacks are got repos. Every tag on git is a version. Version on master branch is the latest
+ available, stable branch is the recommended one.
+ * Github hook support. You can work on your modpack without going to the web interface once. Git magic!
+
 ## Planned features (in order of priority)
- * External repos support (Github is the first provider we'll support, aka webhooks)
- * Remote Minecraft Server Deployment
- * Remote Minecraft Server Autoupdate
- * Embed gitolite setup in deployment (and easy "magic" management)
+ * Skeleton server pack generation
+ * modpack helper scripts/gui
