@@ -55,6 +55,7 @@ class ModCache(models.Model):
     '''
     localpath = models.CharField(max_length=255)
     version = models.CharField(max_length=32)
+    type = models.CharField(max_length=32, null=True)
     md5 = models.CharField(max_length=32)
     modInfo = models.ForeignKey(ModInfoCache)
 

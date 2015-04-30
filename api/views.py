@@ -100,6 +100,7 @@ def modpack_build(request, slug, build):
             "name": modo.modInfo.name,
             "version": modo.version,
             "md5": modo.md5,
+            "type": modo.type,
             "url": fucking_php_escape(modo.get_url(request)),
         }
         result["mods"].append(m)

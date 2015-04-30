@@ -186,6 +186,7 @@ def build_mod(name, version, mm, log=logging.getLogger("build_mod")):
     mv.version = version
     mv.modInfo = mi
     mv.localpath = mz
+    mv.type = mod.versions[version].type
     mv.md5 = checksum_file(mz)
     mv.save()
     return mv

@@ -32,7 +32,7 @@ class ViewsTest(TestCase):
         cls.factory = RequestFactory()
         cls.first=ModpackCache(name='test_d',slug='test',url='http://nope.org',description='test',logo_md5='',icon_md5='', background_md5='')
         cls.first.save()
-        tmp=VersionCache(version='1.0', recommended=True, latest=False,modpack=cls.first, mcversion='1.6.4',forgever='nover')
+        tmp= VersionCache(version='1.0', recommended=True, latest=False, modpack=cls.first, mcversion='1.6.4',forgever='nover')
         tmp.save()
         VersionCache(version='1.1dev', recommended=False, latest=True,modpack=cls.first, mcversion='1.6.4',forgever='').save()
         t = ModInfoCache(name='mod',pretty_name='pretty_mod',author='me',description='mod_d',link='http://nope.org')
@@ -120,12 +120,14 @@ class ViewsTest(TestCase):
                     'version': '1.2',
                     'name': 'mod',
                     'md5': 'somemd52',
+                    'type': 'universal',
                     'url': 'http://testserver/antani/issue2'
                 },
                 {
                     'version': '1.03',
                     'name': 'mod2',
                     'md5': 'somemd53',
+                    'type': 'universal',
                     'url': 'http://testserver/antani/issue3'
                 }
             ]}

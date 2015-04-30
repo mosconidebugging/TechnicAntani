@@ -58,6 +58,10 @@ class Mod:
                     'file': obj["versions"][version]['file'],
                     'mcvers': obj["versions"][version]['minecraft']
                 }
+                if 'type' not in obj["versions"][version].keys():
+                    self.versions[version]["type"] = "universal"
+                else:
+                    self.versions[version]["type"] = obj["versions"][version]['type']
         except KeyError:
             log.error("Missing mod version required params", exc_info=True)
             self.error = sys.exc_info()[0]
