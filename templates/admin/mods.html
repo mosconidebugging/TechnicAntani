@@ -13,6 +13,10 @@
                 <td>{{ git_remote }}</td>
             </tr>
             <tr>
+                <td>User for github</td>
+                <td>{{ git_user }}</td>
+            </tr>
+            <tr>
                 <td>Secret for github hook</td>
                 <td>{{ git_secret }}</td>
             </tr>
@@ -22,5 +26,5 @@
             </tr>
         </tbody>
     </table>
-    <a href="/admin/init_or_pull_modrepo" class="btn btn-default">Initialize or pull mods</a>
+    <a href="{% url 'initmodrepo' %}" class="btn btn-default">Initialize or pull mods</a>
 {% endblock %}
