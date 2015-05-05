@@ -108,7 +108,7 @@ def git_webhook(request):
         secret = RepoSecret.objects.get(repoName=repo_name)
         dig = hmac.new(secret.secret.encode('utf-8'), msg=request.body, digestmod=hashlib.sha1)
         if dig.hexdigest() == signature:
-            mytasks.update_modpack.delay(repo_name, secret.owner)
+            mytasks.update_modpack.delay(repo_name, secret.owner.username)
         else:
             return HttpResponse("{ error : \"Wrong key supplied\"}")
     except RepoSecret.DoesNotExist:
