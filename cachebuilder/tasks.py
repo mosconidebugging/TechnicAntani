@@ -26,8 +26,21 @@ import logging
 import shutil
 import pygit2
 from cachebuilder.logger import DatabaseLogger
+from celery import Task
 
-@shared_task
+class CacheBuilderTask(Task):
+
+  def on_success(self, retval, task_id, args, kwargs):
+     log = logging.getLogger("CacheBuilder")
+     log.addHandler(DatabaseLogger())
+     log.info("Task successfully completed")
+
+  def on_failure(self, exc, task_id, args, kwargs, einfo):
+     log = logging.getLogger("CacheBuilder")
+     log.addHandler(DatabaseLogger())
+     log.error(str(exc) + "\n" + einfo.traceback)
+
+@shared_task(base=CacheBuilderTask)
 def build_all_caches(user=None):
     """
     Updates all caches. Takes forever if there are many things to build
@@ -36,6 +49,7 @@ def build_all_caches(user=None):
     log = logging.getLogger("build_all_caches")
     handle = DatabaseLogger(user)
     log.addHandler(handle)
+    log.info("build_all_caches task started")
 
     # Read up to date data from the filesystem
     mm = ModManager(log)  # GASP!
@@ -114,32 +128,37 @@ def build_all_caches(user=None):
     log.removeHandler(handle)
 
 
-@shared_task
+@shared_task(base=CacheBuilderTask)
 def update_modpack(repo, user):
     """
     Will update caches if new changes are pulled inn
     """
     log = logging.getLogger("update_modpack")
+    log.addHandler(DatabaseLogger())
+    log.info("update_modpack task started")
     repo = pygit2.Repository(path.join(MODPACKPATH, repo))
     updates = False
     for remote in repo.remotes:
+        log.info("Fetching from " + remote.url)
         result = remote.fetch()
-        log.info("Fetched " + result.received_objects + " from remote " + remote.name)
+        log.info("Fetched " + str(result.received_objects) + " objects")
         if result.received_objects > 0:
             updates = True
     if not updates:
-        log.warning('No updates found. Weird. Modpack:  ' + repo)
+        log.warning('No updates found. Weird.')
         return False
     build_all_caches()
     return True
 
 
-@shared_task
+@shared_task(base=CacheBuilderTask)
 def clone_modpack(gitrepo, targetdir):
     """
     Clones git repo in a new directory
     """
     log = logging.getLogger("clone_modpack")
+    log.addHandler(DatabaseLogger())
+    log.info("clone_modpack task started")
     cleandir = sanitize_path(targetdir)
     if path.isdir(path.join(MODPACKPATH, cleandir)):
         log.error('NOPE. There\'s a dir named like this.')
@@ -150,14 +169,14 @@ def clone_modpack(gitrepo, targetdir):
     build_all_caches()
 
 
-@shared_task
+@shared_task(base=CacheBuilderTask)
 def change_mod_repo(newrepo):
     if path.isdir(path.join(MODREPO_DIR, '.git')):
         shutil.rmtree(MODREPO_DIR)
     pygit2.clone_repository(newrepo, MODREPO_DIR)
 
 
-@shared_task
+@shared_task(base=CacheBuilderTask)
 def pull_mods():
     if path.isdir(path.join(MODREPO_DIR, '.git')):
         repo = pygit2.Repository(MODREPO_DIR)
@@ -165,7 +184,7 @@ def pull_mods():
         repo.checkout('refs/remotes/origin/master')
 
 
-@shared_task
+@shared_task(base=CacheBuilderTask)
 def clear_caches():
     delete_built()
     clear_modpacks()
@@ -175,7 +194,7 @@ def clear_caches():
         obj.delete()
 
 
-@shared_task
+@shared_task(base=CacheBuilderTask)
 def clear_modpacks():
     for obj in VersionCache.objects.all():
         obj.delete()
@@ -183,14 +202,13 @@ def clear_modpacks():
         obj.delete()
 
 
-@shared_task
+@shared_task(base=CacheBuilderTask)
 def clear_log():
     Error.objects.all().delete()
 
 
-@shared_task
+@shared_task(base=CacheBuilderTask)
 def purge_caches():
     mp = ModpackManager()
-    for pack in mp.list_packs():
-        shutil.rmtree(os.path.join(MODPACKPATH, pack))
+    mp.clear_packs()
     clear_caches()

@@ -32,3 +32,4 @@ class Error(models.Model):
     user = models.ForeignKey(User, null=True)
     style = models.CharField(default="info", max_length=63)
     error = models.TextField()
+    date = models.DateTimeField(null=True)

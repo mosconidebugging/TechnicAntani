@@ -18,7 +18,7 @@
 import logging
 from cachebuilder.models import Error
 from TechnicAntani.antanisettings import LOGLEVEL
-
+from django.utils import timezone
 
 class DatabaseLogger(logging.Handler):
     """
@@ -51,5 +51,6 @@ class DatabaseLogger(logging.Handler):
             if lvl == logging.DEBUG:
                 e.style = "success"
 
+        e.date = timezone.now()
         e.error = msg
         e.save()
