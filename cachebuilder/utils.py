@@ -186,11 +186,7 @@ def build_mod(name, version, mm, log=logging.getLogger("build_mod")):
     mv.version = version
     mv.modInfo = mi
     mv.localpath = mz
-    try:
-        mv.type = mod.versions[version].type
-    except KeyError:
-        mv.type = 'universal'
-        pass
+    mv.type = mod.versions[version]["type"]
     mv.md5 = checksum_file(mz)
     mv.save()
     return mv
