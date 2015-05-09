@@ -30,6 +30,11 @@ from celery import Task
 
 class CacheBuilderTask(Task):
 
+  def on_success(self, retval, task_id, args, kwargs):
+     log = logging.getLogger("CacheBuilder")
+     log.addHandler(DatabaseLogger())
+     log.info("Task successfully completed")
+
   def on_failure(self, exc, task_id, args, kwargs, einfo):
      log = logging.getLogger("CacheBuilder")
      log.addHandler(DatabaseLogger())
