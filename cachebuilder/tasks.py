@@ -209,6 +209,5 @@ def clear_log():
 @shared_task(base=CacheBuilderTask)
 def purge_caches():
     mp = ModpackManager()
-    for pack in mp.list_packs():
-        shutil.rmtree(os.path.join(MODPACKPATH, pack))
+    mp.clear_packs()
     clear_caches()

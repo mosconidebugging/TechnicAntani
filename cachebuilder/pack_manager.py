@@ -23,6 +23,7 @@ import pygit2
 import re
 import sys
 import logging
+import shutil
 
 class Modpack:
     error = None
@@ -148,3 +149,8 @@ class ModpackManager:
 
     def list_packs(self):
         return self.packs.keys()
+
+    def clear_packs(self):
+        for pack in self.list_packs():
+            shutil.rmtree(path.join(MODPACKPATH, pack))
+        self.packs = {}
