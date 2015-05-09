@@ -16,7 +16,7 @@
         {% for log in logs %}
             <tr>
                 <td>{{ log.date|date:"d/m/y" }}, {{ log.date|time:"H:i:s" }}</td>
-                <td>{{ log.error }}</td>
+                <td>{{ log.error|linebreaksbr }}</td>
                 <td><span class="label label-{{ log.style }}">{{ log.style|capfirst }}</span></td>
             </tr>
         {% endfor %}
