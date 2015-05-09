@@ -49,6 +49,7 @@ def build_all_caches(user=None):
     log = logging.getLogger("build_all_caches")
     handle = DatabaseLogger(user)
     log.addHandler(handle)
+    log.info("build_all_caches task started")
 
     # Read up to date data from the filesystem
     mm = ModManager(log)  # GASP!
@@ -133,6 +134,8 @@ def update_modpack(repo, user):
     Will update caches if new changes are pulled inn
     """
     log = logging.getLogger("update_modpack")
+    log.addHandler(DatabaseLogger())
+    log.info("update_modpack task started")
     repo = pygit2.Repository(path.join(MODPACKPATH, repo))
     updates = False
     for remote in repo.remotes:
@@ -153,6 +156,8 @@ def clone_modpack(gitrepo, targetdir):
     Clones git repo in a new directory
     """
     log = logging.getLogger("clone_modpack")
+    log.addHandler(DatabaseLogger())
+    log.info("clone_modpack task started")
     cleandir = sanitize_path(targetdir)
     if path.isdir(path.join(MODPACKPATH, cleandir)):
         log.error('NOPE. There\'s a dir named like this.')
