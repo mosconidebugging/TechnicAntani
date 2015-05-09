@@ -139,12 +139,13 @@ def update_modpack(repo, user):
     repo = pygit2.Repository(path.join(MODPACKPATH, repo))
     updates = False
     for remote in repo.remotes:
+        log.info("Fetching from " + remote.url)
         result = remote.fetch()
-        log.info("Fetched " + result.received_objects + " from remote " + remote.name)
+        log.info("Fetched " + str(result.received_objects) + " objects")
         if result.received_objects > 0:
             updates = True
     if not updates:
-        log.warning('No updates found. Weird. Modpack:  ' + repo)
+        log.warning('No updates found. Weird.')
         return False
     build_all_caches()
     return True
