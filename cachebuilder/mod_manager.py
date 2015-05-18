@@ -42,7 +42,10 @@ class Mod:
             versionf.close()
         try:
             self.name = obj["name"]
-            self.description = obj["description"]
+            if 'description' not in obj.keys():
+                self.description = "No description"
+            else:
+                self.description = obj["description"]
             self.author = obj["author"]
             self.url = obj["url"]
             self.type = obj["type"]  # mod, prepackaged
