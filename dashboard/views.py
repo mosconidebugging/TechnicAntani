@@ -9,7 +9,7 @@ def index(request):
     context = {
         "packs": ModpackCache.objects.all(),
         "rootdir": get_root_for(request, "", ""),
-        "git_ssh": pygit2.features < 4,
-        "git_https": pygit2.features < 2
+        "git_ssh": not (pygit2.features & pygit2.GIT_FEATURE_SSH),
+        "git_https": not (pygit2.features & pygit2.GIT_FEATURE_HTTPS)
     }
     return render(request, "dashboard/index.html", context)
